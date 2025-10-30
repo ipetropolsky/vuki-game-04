@@ -4,13 +4,56 @@ import confetti from 'canvas-confetti';
 function App() {
     const [value, setValue] = useState('');
     const [hasError, setHasError] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
     const [shake, setShake] = useState(false);
     const [pageShake, setPageShake] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const inputWrapRef = useRef<HTMLDivElement>(null);
+    const victoryWrapRef = useRef<HTMLDivElement>(null);
+    const victoryImgRef = useRef<HTMLImageElement>(null);
+    const [victoryHeightPx, setVictoryHeightPx] = useState<number | 'auto'>(0);
+
+    const claimRef = useRef<HTMLButtonElement>(null);
+    const treasureWrapRef = useRef<HTMLDivElement>(null);
+    const treasureImgRef = useRef<HTMLImageElement>(null);
+    const [treasureHeightPx, setTreasureHeightPx] = useState<number | 'auto'>(0);
+
+    const [claimHeightPx, setClaimHeightPx] = useState<number | 'auto'>(0);
 
     const normalized = useMemo(() => value.trim().toLowerCase(), [value]);
+
+    const onVictoryLoad = useCallback(() => {
+        const wrap = victoryWrapRef.current;
+        const img = victoryImgRef.current;
+        if (!wrap || !img) {
+            return;
+        }
+        const wrapWidth = wrap.clientWidth || img.clientWidth;
+        const target = (img.naturalHeight / img.naturalWidth) * wrapWidth;
+        requestAnimationFrame(() => setVictoryHeightPx(target));
+    }, []);
+
+    const onTreasureLoad = useCallback(() => {
+        const wrap = treasureWrapRef.current;
+        const img = treasureImgRef.current;
+        if (!wrap || !img) {
+            return;
+        }
+        const wrapWidth = wrap.clientWidth || img.clientWidth;
+        const target = (img.naturalHeight / img.naturalWidth) * wrapWidth;
+        requestAnimationFrame(() => setTreasureHeightPx(target));
+    }, []);
+
+    const onClaimLoad = useCallback(() => {
+        if (!claimRef.current) {
+            return;
+        }
+        // measure once when becomes available
+        const rect = claimRef.current.getBoundingClientRect();
+        const computed = rect.height;
+        if (computed) {
+            requestAnimationFrame(() => setClaimHeightPx(computed));
+        }
+    }, []);
 
     const fireCelebration = useCallback(() => {
         const durationMs = 2200;
@@ -56,26 +99,35 @@ function App() {
 
             setPageShake(true);
         }, 600);
-    }, []);
+
+        setTimeout(() => {
+            onClaimLoad();
+        }, durationMs + 1000);
+    }, [onClaimLoad]);
 
     const handleSend = useCallback(() => {
         const correct = normalized === 'a gun';
         if (correct) {
-            setIsSuccess(true);
             setHasError(false);
             setShake(false);
-            // trigger page-level shake once per celebration
             setPageShake(false);
+            setVictoryHeightPx(0);
+            setTreasureHeightPx(0);
+            setClaimHeightPx(0);
             fireCelebration();
+            onVictoryLoad();
         } else {
-            setIsSuccess(false);
             setHasError(true);
             setShake(false);
             setPageShake(false);
+            setVictoryHeightPx(0);
+            setVictoryHeightPx(0);
+            setTreasureHeightPx(0);
+            setClaimHeightPx(0);
             requestAnimationFrame(() => setShake(true));
             inputRef.current?.focus();
         }
-    }, [normalized, fireCelebration]);
+    }, [normalized, fireCelebration, onVictoryLoad]);
 
     return (
         <div
@@ -109,7 +161,7 @@ function App() {
                         }}
                         placeholder="Your answer..."
                         className={[
-                            'flex-1 rounded-lg bg-white/5 text-white placeholder-white/40',
+                            'flex-1 rounded-lg bg-white/5 text-white text-xl sm:text-2xl placeholder-white/40',
                             'px-4 py-3 outline-none border transition-colors',
                             hasError ? 'border-red-500' : 'border-white/15 focus:border-white/40',
                             shake ? 'animate-shake' : '',
@@ -124,19 +176,70 @@ function App() {
                     <button
                         type="button"
                         onClick={handleSend}
-                        className="shrink-0 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 px-6 text-lg font-medium"
+                        className="shrink-0 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 px-6 text-2xl font-medium hidden sm:block"
                     >
                         Send
                     </button>
+                    <button
+                        type="button"
+                        onClick={handleSend}
+                        className="shrink-0 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 px-6 text-xl font-medium block sm:hidden"
+                    >
+                        →
+                    </button>
                 </div>
 
-                {isSuccess && (
-                    <div className="mt-8 flex justify-center">
-                        <div className="reveal-down overflow-hidden rounded-lg shadow-xl">
-                            <img src="/victory.jpg" alt="Victory" className="block max-h-[50svh]" />
-                        </div>
+                <div className="mt-8 flex flex-col items-center gap-6">
+                    <div
+                        ref={victoryWrapRef}
+                        className="reveal-height overflow-hidden rounded-lg shadow-xl w-full"
+                        style={{ height: victoryHeightPx === 'auto' ? 'auto' : `${victoryHeightPx}px` }}
+                        onTransitionEnd={() => {
+                            if (victoryHeightPx !== 'auto') {
+                                setVictoryHeightPx('auto');
+                            }
+                        }}
+                    >
+                        <img ref={victoryImgRef} src="/victory.jpg" alt="Victory" className="block w-full h-auto" />
                     </div>
-                )}
+
+                    <div
+                        className="reveal-height w-full flex justify-center"
+                        style={{ height: claimHeightPx === 'auto' ? 'auto' : `${claimHeightPx}px` }}
+                        onTransitionEnd={() => {
+                            if (claimHeightPx !== 'auto') {
+                                setClaimHeightPx('auto');
+                            }
+                        }}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (treasureHeightPx !== 'auto') {
+                                    setTreasureHeightPx(0);
+                                    requestAnimationFrame(() => onTreasureLoad());
+                                }
+                            }}
+                            className="min-h-15 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white text-xl sm:text-2xl font-semibold px-8 py-4 shadow-lg transition-colors"
+                            ref={claimRef}
+                        >
+                            Claim the Award
+                        </button>
+                    </div>
+
+                    <div
+                        ref={treasureWrapRef}
+                        className="reveal-height overflow-hidden rounded-lg shadow-xl w-full"
+                        style={{ height: treasureHeightPx === 'auto' ? 'auto' : `${treasureHeightPx}px` }}
+                        onTransitionEnd={() => {
+                            if (treasureHeightPx !== 'auto') {
+                                setTreasureHeightPx('auto');
+                            }
+                        }}
+                    >
+                        <img ref={treasureImgRef} src="/treasure.jpg" alt="Treasure" className="block w-full h-auto" />
+                    </div>
+                </div>
             </div>
         </div>
     );
