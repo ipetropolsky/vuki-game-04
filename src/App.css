@@ -1,0 +1,78 @@
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20% {
+        transform: translateX(-3px);
+    }
+
+    40% {
+        transform: translateX(3px);
+    }
+
+    60% {
+        transform: translateX(-3px);
+    }
+
+    80% {
+        transform: translateX(3px);
+    }
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.96) translateY(6px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-shake {
+    animation: shake 500ms ease-in-out 0s;
+}
+
+.animate-pop-in {
+    animation: popIn 500ms ease-out;
+}
+
+.animate-slide-down {
+    animation: slideDown 500ms ease-out;
+}
+
+/* Reveal image from top by growing container height (no image squish) */
+@keyframes revealDown {
+    0% {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    100% {
+        opacity: 1;
+        max-height: 50svh;
+        /* should match the image max height */
+    }
+}
+
+.reveal-down {
+    animation: revealDown 600ms ease-out forwards;
+    max-height: 0;
+    /* start closed */
+}

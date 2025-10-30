@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'App.css';
 
 /* App-wide base styles without @apply (Tailwind v4) */
 body {
