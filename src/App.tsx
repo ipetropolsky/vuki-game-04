@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
+import victoryUrl from '../assets/victory.jpg';
+import treasureUrl from '../assets/treasure.jpg';
 
 function App() {
     const [value, setValue] = useState('');
@@ -144,7 +146,7 @@ function App() {
             <div className="w-full max-w-2xl">
                 <h1 className="text-center text-4xl sm:text-5xl font-semibold mb-8">The Answer</h1>
 
-                <div ref={inputWrapRef} className="flex gap-3 items-stretch">
+                <div ref={inputWrapRef} className="flex flex-col sm:flex-row gap-3 items-stretch">
                     <input
                         ref={inputRef}
                         value={value}
@@ -176,16 +178,9 @@ function App() {
                     <button
                         type="button"
                         onClick={handleSend}
-                        className="shrink-0 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 px-6 text-2xl font-medium hidden sm:block"
+                        className="shrink-0 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 px-6 py-3 text-xl sm:text-2xl font-medium"
                     >
                         Send
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleSend}
-                        className="shrink-0 rounded-lg bg-indigo-500 hover:bg-indigo-400 active:bg-indigo-600 px-6 text-xl font-medium block sm:hidden"
-                    >
-                        →
                     </button>
                 </div>
 
@@ -200,7 +195,7 @@ function App() {
                             }
                         }}
                     >
-                        <img ref={victoryImgRef} src="/victory.jpg" alt="Victory" className="block w-full h-auto" />
+                        <img ref={victoryImgRef} src={victoryUrl} alt="Victory" className="block w-full h-auto" />
                     </div>
 
                     <div
@@ -223,7 +218,7 @@ function App() {
                             className="min-h-15 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white text-xl sm:text-2xl font-semibold px-8 py-4 shadow-lg transition-colors"
                             ref={claimRef}
                         >
-                            Claim the Award
+                            🏆 Claim the Award
                         </button>
                     </div>
 
@@ -237,7 +232,7 @@ function App() {
                             }
                         }}
                     >
-                        <img ref={treasureImgRef} src="/treasure.jpg" alt="Treasure" className="block w-full h-auto" />
+                        <img ref={treasureImgRef} src={treasureUrl} alt="Treasure" className="block w-full h-auto" />
                     </div>
                 </div>
             </div>
